@@ -674,6 +674,9 @@ export class Storyblok {
     if (params.version === 'published' && url !== '/cdn/spaces/me') {
       const cache = await provider.get(cacheKey);
       if (cache) {
+        if (cache.status === 404) {
+          return Promise.reject(cache);
+        }
         return Promise.resolve(cache);
       }
     }
@@ -744,6 +747,11 @@ export class Storyblok {
               .catch(reject);
           }
         }
+
+        if (error.response && error.response.status === 404) {
+          await provider.set(cacheKey, error);
+        }
+
         reject(error);
       }
     });
